@@ -1,0 +1,10 @@
+{
+  "name": "GLVietsub",
+  "pluginClassName": "com.glvietsub.GLVietsubPlugin",
+  "description": "Kho phim BL - Độc quyền duy nhất Catalog Phim BL, chuẩn 1080p FHD trên Cloudstream Android TV Box & Mobile.",
+  "version": 1,
+  "author": "GLVietsub",
+  "tvTypes": ["TvSeries", "AsianDrama"],
+  "iconUrl": "https://www.glvietsubz.net/favicon.ico",
+  "language": "vi"
+}
