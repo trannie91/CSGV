@@ -87,7 +87,7 @@ project(":GLVietsub") {
 
     cloudstream {
         authors = listOf("GLVietsub")
-        description = "Extension xem phim Đam Mỹ BL từ GLVietsub (glvietsubz.net) - Chỉ lấy duy nhất Catalog Phim BL, tự động bóc tách link 1080p FHD từ máy chủ Rumble Cloud, OK.ru, VK, loại bỏ chất lượng thấp."
+        description = "Extension xem phim BL - Chỉ lấy duy nhất Catalog Phim BL, tự động bóc tách link 1080p FHD từ máy chủ Rumble Cloud, OK.ru, VK, loại bỏ chất lượng thấp."
         status = 1
         tvTypes = listOf("TvSeries", "AsianDrama")
         language = "vi"
