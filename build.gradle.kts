@@ -51,11 +51,13 @@ subprojects {
         }
 
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-            kotlinOptions {
-                jvmTarget = "1.8"
-                freeCompilerArgs = freeCompilerArgs + listOf(
-                    "-opt-in=kotlin.RequiresOptIn",
-                    "-Xskip-metadata-version-check"
+            compilerOptions {
+                jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_1_8)
+                freeCompilerArgs.set(
+                    freeCompilerArgs.get() + listOf(
+                        "-opt-in=kotlin.RequiresOptIn",
+                        "-Xskip-metadata-version-check"
+                    )
                 )
             }
         }
@@ -73,6 +75,8 @@ subprojects {
         implementation("org.jsoup:jsoup:1.18.3")
         implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.1")
     }
+}
+
 // Cấu hình cụ thể cho module extension :GLVietsub
 project(":GLVietsub") {
     version = 1
@@ -83,7 +87,7 @@ project(":GLVietsub") {
 
     cloudstream {
         authors = listOf("GLVietsub")
-        description = "Extension xem phim BL - Chỉ lấy duy nhất Catalog Phim BL, tự động bóc tách link 1080p FHD từ máy chủ Rumble Cloud, OK.ru, VK, loại bỏ chất lượng thấp."
+        description = "Extension xem phim Đam Mỹ BL từ GLVietsub (glvietsubz.net) - Chỉ lấy duy nhất Catalog Phim BL, tự động bóc tách link 1080p FHD từ máy chủ Rumble Cloud, OK.ru, VK, loại bỏ chất lượng thấp."
         status = 1
         tvTypes = listOf("TvSeries", "AsianDrama")
         language = "vi"
@@ -94,3 +98,4 @@ project(":GLVietsub") {
 task<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }
+
