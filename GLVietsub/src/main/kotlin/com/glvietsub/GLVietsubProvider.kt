@@ -19,7 +19,7 @@ class GLVietsubProvider : MainAPI() {
         TvType.AsianDrama
     )
 
-    // Chỉ lấy đúng duy nhất Catalog Phim BL theo yêu cầu (không lấy bất kỳ Catalog nào khác)
+    // Chỉ lấy đúng duy nhất Catalog Phim BL theo yêu cầu
     override val mainPage = mainPageOf(
         "the-loai/phim-bl-dam-my" to "Phim BL (Đam Mỹ)"
     )
@@ -116,8 +116,6 @@ class GLVietsubProvider : MainAPI() {
                 if (rawTitle.isEmpty()) continue
                 val title = cleanTitle(rawTitle)
                 val poster = extractPoster(art)
-
-                // Trạng thái tập / chất lượng
                 val epsSeries = art.selectFirst(".epseries, .quality")?.text()?.trim() ?: ""
 
                 val response = newTvSeriesSearchResponse(title, href, TvType.AsianDrama) {
@@ -129,7 +127,6 @@ class GLVietsubProvider : MainAPI() {
                 items.add(response)
             }
 
-            // Kiểm tra phân trang tiếp theo
             val pagination = doc.selectFirst(".pagination")
             if (pagination != null) {
                 val nextLink = pagination.selectFirst("a.arrow_pag, a:contains(Sau), a.inactive:contains(${page + 1})")
@@ -158,13 +155,16 @@ class GLVietsubProvider : MainAPI() {
     }
 
     override suspend fun search(query: String): List<SearchResponse> {
-        if (query.trim().isEmpty()) return emptyList()
+        val trimmedQuery = query.trim()
+        if (trimmedQuery.isEmpty()) return emptyList()
 
-        val encodedQuery = URLEncoder.encode(query.trim(), "UTF-8")
-        val searchUrl = "$mainUrl/?s=$encodedQuery"
         val results = mutableListOf<SearchResponse>()
+        val keywords = trimmedQuery.lowercase().split(Regex("\\s+"))
 
+        // 1. Tìm kiếm trực tiếp qua endpoint search của website (WordPress ?s=...)
         try {
+            val encodedQuery = URLEncoder.encode(trimmedQuery, "UTF-8")
+            val searchUrl = "$mainUrl/?s=$encodedQuery"
             val doc = app.get(
                 searchUrl,
                 headers = mapOf(
@@ -173,7 +173,7 @@ class GLVietsubProvider : MainAPI() {
                 )
             ).document
 
-            val articles = doc.select("article.item, .result-item article, article")
+            val articles = doc.select("article.item, .result-item, article, div.item, .items article")
             for (art in articles) {
                 val linkEl = art.selectFirst("a[href*='/phim-bo/'], a[href*='/phim/'], a") ?: continue
                 val href = fixUrl(linkEl.attr("href"))
@@ -192,6 +192,46 @@ class GLVietsubProvider : MainAPI() {
                         this.posterUrl = poster
                     }
                 )
+            }
+        } catch (_: Throwable) {}
+
+        // 2. Quét thông minh danh mục Phim BL (pages 1-3) để hỗ trợ tìm kiếm cả tiếng Anh lẫn tiếng Việt hoàn hảo
+        try {
+            for (p in 1..3) {
+                val catalogUrl = if (p == 1) "$mainUrl/the-loai/phim-bl-dam-my" else "$mainUrl/the-loai/phim-bl-dam-my/page/$p"
+                val catDoc = app.get(
+                    catalogUrl,
+                    headers = mapOf(
+                        "User-Agent" to userAgent,
+                        "Referer" to "$mainUrl/"
+                    )
+                ).document
+
+                val articles = catDoc.select("article.item, article")
+                for (art in articles) {
+                    val linkEl = art.selectFirst("a[href*='/phim-bo/'], a[href*='/phim/'], a") ?: continue
+                    val href = fixUrl(linkEl.attr("href"))
+                    if (href.isEmpty() || href == "$mainUrl/" || href.contains("/the-loai/")) continue
+
+                    val rawTitle = art.selectFirst(".dtinfo-title a, h4 a, h3 a, .title a, img")?.let {
+                        it.attr("alt").ifEmpty { it.text() }
+                    } ?: art.selectFirst("img")?.attr("alt") ?: ""
+
+                    if (rawTitle.isEmpty()) continue
+                    val title = cleanTitle(rawTitle)
+                    val poster = extractPoster(art)
+
+                    val lowerTitle = title.lowercase()
+                    val matches = keywords.all { kw -> lowerTitle.contains(kw) } || lowerTitle.contains(trimmedQuery.lowercase())
+
+                    if (matches) {
+                        results.add(
+                            newTvSeriesSearchResponse(title, href, TvType.AsianDrama) {
+                                this.posterUrl = poster
+                            }
+                        )
+                    }
+                }
             }
         } catch (_: Throwable) {}
 
@@ -331,7 +371,7 @@ class GLVietsubProvider : MainAPI() {
                         embedUrl = iframeSrc
                     }
 
-                    // 1. Máy chủ Rumble Cloud FHD 1080p (Thường ở Server 1 của GLVietsub)
+                    // 1. Máy chủ Rumble Cloud FHD 1080p
                     if (embedUrl.contains("watch?source=")) {
                         val sourceParam = Regex("""source=([^&]+)""").find(embedUrl)?.groupValues?.get(1)
                         if (!sourceParam.isNullOrEmpty()) {
@@ -357,7 +397,7 @@ class GLVietsubProvider : MainAPI() {
                         }
                     }
 
-                    // 2. Máy chủ OK.ru (Chỉ lấy chất lượng 1080p FHD, loại bỏ các chất lượng thấp)
+                    // 2. Máy chủ OK.ru
                     else if (embedUrl.contains("ok.ru")) {
                         try {
                             val okExtractor = OkRuExtractor()
@@ -368,7 +408,7 @@ class GLVietsubProvider : MainAPI() {
                         } catch (_: Throwable) {}
                     }
 
-                    // 3. Máy chủ VK (Chỉ lấy chất lượng 1080p FHD)
+                    // 3. Máy chủ VK
                     else if (embedUrl.contains("vk.com") || embedUrl.contains("vk.ru") || embedUrl.contains("vkvideo.ru")) {
                         try {
                             val vkExtractor = VkExtractor()
