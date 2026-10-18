@@ -1,0 +1,23 @@
+[
+    {
+        "iconUrl": "https://www.glvietsubz.net/favicon.ico",
+        "fileHash": "sha256-c9ad52aea8bb590bf7e6dd4362e5b88b654ddb63737dca406156e6e30eee199f",
+        "apiVersion": 1,
+        "repositoryUrl": "https://github.com/trannie91/CSGV",
+        "fileSize": 30690,
+        "status": 1,
+        "language": "vi",
+        "authors": [
+            "GLVietsub"
+        ],
+        "tvTypes": [
+            "TvSeries",
+            "AsianDrama"
+        ],
+        "version": 1,
+        "internalName": "GLVietsub",
+        "description": "Extension xem phim BL - Ch\u1ec9 l\u1ea5y duy nh\u1ea5t Catalog Phim BL, t\u1ef1 \u0111\u1ed9ng b\u00f3c t\u00e1ch link 1080p FHD t\u1eeb m\u00e1y ch\u1ee7 Rumble Cloud, OK.ru, VK, lo\u1ea1i b\u1ecf ch\u1ea5t l\u01b0\u1ee3ng th\u1ea5p.",
+        "url": "https://raw.githubusercontent.com/trannie91/CSGV/builds/GLVietsub.cs3",
+        "name": "GLVietsub"
+    }
+]

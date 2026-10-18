@@ -1,0 +1,8 @@
+{
+  "name": "GLVietsub - Phim BL Đam Mỹ",
+  "description": "Kho phim BL - Tương thích 100% Cloudstream Android TV Box & Mobile.",
+  "manifestVersion": 1,
+  "pluginLists": [
+    "https://raw.githubusercontent.com/trannie91/CSGV/builds/plugins.json"
+  ]
+}
